@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { checkoutFn } from "../../api/checkoutApi";
 
+// Static products to display
 const products = [
   {
     id: 1,
@@ -22,6 +23,7 @@ const products = [
   // More products...
 ];
 
+// Static delivery methods supported
 const deliveryMethods = [
   {
     id: 1,
@@ -41,6 +43,7 @@ const classNames = (...classes: string[]) => {
   return classes.filter(Boolean).join(" ");
 };
 
+// Model type and validation for checkout data
 const checkoutSchema = object({
   cardName: coerce.string(),
   cardNumber: coerce.string(),
@@ -88,6 +91,7 @@ const Main = () => {
 
   const { register, handleSubmit } = methods;
 
+  // Called when payment is submitted and zod validation is successful
   const checkoutSubmitHandler: SubmitHandler<CheckoutInput> = async (data) => {
     const updatedData = {
       ...data,
@@ -115,12 +119,14 @@ const Main = () => {
       });
   };
 
+  // Called when payment is submitted and zod validation fails
   const checkoutErrorHandler: SubmitErrorHandler<CheckoutInput> = async (
     error,
   ) => {
     console.log(error);
   };
 
+  // Called when card number is typed, this adds a space in between 4 digit groups and ensure only numbers can be added
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValueWithoutNonDigits = e.target.value.replace(/\D/g, ""); // Remove non-digit characters
     const formattedValue = inputValueWithoutNonDigits.replace(
@@ -131,6 +137,8 @@ const Main = () => {
     setCardNumber(formattedValue);
   };
 
+  // Called when either exp month/year or ccv is being typed, this ensures only didgits are added
+  // while maintaining the base validation defined on the input elements
   const handleNumberOnlyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedValue = e.target.value.replace(/\D/g, ""); // Remove non-digit characters
     switch (e.target.name) {
@@ -146,6 +154,7 @@ const Main = () => {
     }
   };
 
+  // Called when order quantity is changed
   const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setQuantity(parseInt(e.target.value));
   };
