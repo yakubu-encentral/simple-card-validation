@@ -4,6 +4,11 @@
 
 A simple application that validates card details during ecommerce checkout
 
+## Requirement
+
+- Frontend: Node 18.17.1 or recent (earlier versions that aren't too old also work)
+- Backend: Java 17
+
 ## Stack
 
 - Frontend: NodeJs, Typescript, React, Tailwind
