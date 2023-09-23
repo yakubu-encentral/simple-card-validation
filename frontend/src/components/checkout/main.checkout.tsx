@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, SubmitErrorHandler, useForm } from "react-hook-form";
 import { RadioGroup } from "@headlessui/react";
 import { CheckCircleIcon, TrashIcon } from "@heroicons/react/24/solid";
@@ -12,12 +12,12 @@ const products = [
     id: 1,
     title: "Basic Tee",
     href: "#",
-    price: "$32.00",
-    color: "Black",
+    price: "₦7500.00",
+    color: "White",
     size: "Large",
     imageSrc:
       "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/64/986649/1.jpg?6655",
-    imageAlt: "Front of men's Basic Tee in black.",
+    imageAlt: "Front of men's Basic Tee in white.",
   },
   // More products...
 ];
@@ -27,9 +27,14 @@ const deliveryMethods = [
     id: 1,
     title: "Standard",
     turnaround: "4–10 business days",
-    price: "$5.00",
+    price: 500.0,
   },
-  { id: 2, title: "Express", turnaround: "2–5 business days", price: "$16.00" },
+  {
+    id: 2,
+    title: "Express",
+    turnaround: "2–5 business days",
+    price: 1600.0,
+  },
 ];
 
 const classNames = (...classes: string[]) => {
@@ -44,6 +49,8 @@ const checkoutSchema = object({
   ccv: coerce.string(),
 });
 
+const taxes = 50.25;
+
 export type CheckoutInput = TypeOf<typeof checkoutSchema>;
 
 const Main = () => {
@@ -51,6 +58,29 @@ const Main = () => {
     deliveryMethods[0],
   );
   const [cardNumber, setCardNumber] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [subTotal, setSubTotal] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  const [expMonth, setExpMonth] = useState("");
+  const [expYear, setExpYear] = useState("");
+  const [ccvPin, setCcvPin] = useState("");
+
+  useEffect(() => {
+    setSubTotal(7500 * quantity);
+  }, []);
+
+  useEffect(() => {
+    setTotal(subTotal + selectedDeliveryMethod.price + taxes);
+  }, [subTotal]);
+
+  useEffect(() => {
+    setTotal(subTotal + selectedDeliveryMethod.price + taxes);
+  }, [selectedDeliveryMethod]);
+
+  useEffect(() => {
+    setSubTotal(7500 * quantity);
+  }, [quantity]);
 
   const methods = useForm<CheckoutInput>({
     resolver: zodResolver(checkoutSchema),
@@ -85,10 +115,10 @@ const Main = () => {
       });
   };
 
-  const checkoutSubmitHandler2: SubmitErrorHandler<CheckoutInput> = async (
-    data,
+  const checkoutErrorHandler: SubmitErrorHandler<CheckoutInput> = async (
+    error,
   ) => {
-    console.log(data);
+    console.log(error);
   };
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +131,25 @@ const Main = () => {
     setCardNumber(formattedValue);
   };
 
+  const handleNumberOnlyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = e.target.value.replace(/\D/g, ""); // Remove non-digit characters
+    switch (e.target.name) {
+      case "expiryMonth":
+        setExpMonth(formattedValue);
+        break;
+      case "expiryYear":
+        setExpYear(formattedValue);
+        break;
+      case "ccv":
+        setCcvPin(formattedValue);
+        break;
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setQuantity(parseInt(e.target.value));
+  };
+
   return (
     <>
       <main className="mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 lg:px-8">
@@ -108,15 +157,14 @@ const Main = () => {
           <h1 className="sr-only">Checkout</h1>
 
           <form
-            onSubmit={handleSubmit(
-              checkoutSubmitHandler,
-              checkoutSubmitHandler2,
-            )}
+            onSubmit={handleSubmit(checkoutSubmitHandler, checkoutErrorHandler)}
             className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16"
           >
             <div>
               <div>
-                <h2 className="text-lg font-medium text-gray-900">CheckOut</h2>
+                <h2 className="text-center text-lg font-medium text-gray-900">
+                  CheckOut
+                </h2>
               </div>
 
               <div className="mt-10 border-t border-gray-200 pt-10">
@@ -161,7 +209,7 @@ const Main = () => {
                                   as="span"
                                   className="mt-6 text-sm font-medium text-gray-900"
                                 >
-                                  {deliveryMethod.price}
+                                  {`₦${deliveryMethod.price}`}
                                 </RadioGroup.Description>
                               </div>
                             </div>
@@ -249,9 +297,11 @@ const Main = () => {
                         minLength={2}
                         maxLength={2}
                         size={3}
+                        value={expMonth}
                         autoComplete="cc-exp-month"
                         required
                         {...register("expiryMonth")}
+                        onChange={handleNumberOnlyChange}
                         className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
                       <span className="mx-7">/</span>
@@ -261,10 +311,12 @@ const Main = () => {
                         placeholder="YY"
                         minLength={2}
                         maxLength={2}
+                        value={expYear}
                         size={3}
                         autoComplete="cc-exp-year"
                         required
                         {...register("expiryYear")}
+                        onChange={handleNumberOnlyChange}
                         className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
                     </div>
@@ -281,11 +333,14 @@ const Main = () => {
                       <input
                         type="text"
                         id="ccv"
+                        placeholder="CVV/CVC"
                         minLength={3}
                         maxLength={4}
+                        value={ccvPin}
                         autoComplete="ccv"
                         required
                         {...register("ccv")}
+                        onChange={handleNumberOnlyChange}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
                     </div>
@@ -368,6 +423,7 @@ const Main = () => {
                             <select
                               id="quantity"
                               name="quantity"
+                              onChange={handleQuantityChange}
                               className="rounded-md border border-gray-300 text-left text-base font-medium text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                             >
                               <option value={1}>1</option>
@@ -389,21 +445,23 @@ const Main = () => {
                   <div className="flex items-center justify-between">
                     <dt className="text-sm">Subtotal</dt>
                     <dd className="text-sm font-medium text-gray-900">
-                      $64.00
+                      {`₦${subTotal}`}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-sm">Shipping</dt>
-                    <dd className="text-sm font-medium text-gray-900">$5.00</dd>
+                    <dd className="text-sm font-medium text-gray-900">{`₦${selectedDeliveryMethod.price}`}</dd>
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-sm">Taxes</dt>
-                    <dd className="text-sm font-medium text-gray-900">$5.52</dd>
+                    <dd className="text-sm font-medium text-gray-900">
+                      {`₦${taxes}`}
+                    </dd>
                   </div>
                   <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                     <dt className="text-base font-medium">Total</dt>
                     <dd className="text-base font-medium text-gray-900">
-                      $75.52
+                      {`₦${total}`}
                     </dd>
                   </div>
                 </dl>
