@@ -3,12 +3,16 @@ package com.levelup.checkout.exceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class DefaultExceptionHandler {
@@ -26,8 +30,26 @@ public class DefaultExceptionHandler {
     }
 
     @ExceptionHandler(InvalidCardDetailsException.class)
-    public ResponseEntity<ApiError> handleException(InvalidCardDetailsException e, HttpServletRequest request) {
-        return commonNotFound(e.getMessage(), request.getRequestURI());
+    public ResponseEntity<MultiApiError> handleException(InvalidCardDetailsException e, HttpServletRequest request) {
+        final var multiApiError = new MultiApiError(request.getRequestURI(),
+                e.getReasons(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now());
+        return new ResponseEntity<>(multiApiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<MultiApiError> handleException(MethodArgumentNotValidException e, HttpServletRequest request) {
+        final var message = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+        final var multiApiError = new MultiApiError(request.getRequestURI(),
+                message,
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now());
+        return new ResponseEntity<>(multiApiError, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler

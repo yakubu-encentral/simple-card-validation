@@ -17,7 +17,7 @@ public class CheckoutImpl implements ICheckout {
                 checkoutDto.getCardName(),
                 Long.valueOf(checkoutDto.getCardNumber()),
                 Short.valueOf(checkoutDto.getExpiryMonth()),
-                Short.valueOf(checkoutDto.getExpiryYear()),
+                Short.valueOf("20" + checkoutDto.getExpiryYear()),
                 Short.valueOf(checkoutDto.getCcv())
         );
         validateCardDetails(cardDetails);
@@ -29,7 +29,7 @@ public class CheckoutImpl implements ICheckout {
 
         final var now = LocalDate.now();
         final var expiryDate = LocalDate.of(cardDetails.expiryYear(), cardDetails.expiryMonth(), now.getDayOfMonth());
-        if (now.isBefore(expiryDate)) {
+        if (now.isAfter(expiryDate)) {
             errors.add("This card has expired");
         }
 
@@ -48,7 +48,7 @@ public class CheckoutImpl implements ICheckout {
         }
 
         if (!errors.isEmpty()) {
-            throw new InvalidCardDetailsException(errors.toString());
+            throw new InvalidCardDetailsException("Invalid Card Details", errors);
         }
     }
 
