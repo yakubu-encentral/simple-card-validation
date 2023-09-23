@@ -4,6 +4,8 @@ import { RadioGroup } from "@headlessui/react";
 import { CheckCircleIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { coerce, object, TypeOf } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-toastify";
+import { checkoutFn } from "../../api/checkoutApi";
 
 const products = [
   {
@@ -37,9 +39,9 @@ const classNames = (...classes: string[]) => {
 const checkoutSchema = object({
   cardName: coerce.string(),
   cardNumber: coerce.string(),
-  expiryMonth: coerce.number(),
-  expiryYear: coerce.number(),
-  ccv: coerce.number(),
+  expiryMonth: coerce.string(),
+  expiryYear: coerce.string(),
+  ccv: coerce.string(),
 });
 
 export type CheckoutInput = TypeOf<typeof checkoutSchema>;
@@ -57,7 +59,30 @@ const Main = () => {
   const { register, handleSubmit } = methods;
 
   const checkoutSubmitHandler: SubmitHandler<CheckoutInput> = async (data) => {
-    console.log(data);
+    const updatedData = {
+      ...data,
+      cardNumber: data.cardNumber.replace(/\s/g, ""),
+    };
+    checkoutFn(updatedData)
+      .then((result) => {
+        toast("Checokut successful", {
+          type: "success",
+          position: "top-right",
+        });
+      })
+      .catch((error) => {
+        const errorMessage: string[] =
+          error.response.data.message ||
+          error.response.data.detail ||
+          error.message ||
+          error.toString();
+        errorMessage.forEach((message) =>
+          toast(message, {
+            type: "error",
+            position: "top-right",
+          }),
+        );
+      });
   };
 
   const checkoutSubmitHandler2: SubmitErrorHandler<CheckoutInput> = async (
@@ -433,7 +458,7 @@ const Main = () => {
                         type="text"
                         id="ccv"
                         minLength={3}
-                        maxLength={3}
+                        maxLength={4}
                         autoComplete="ccv"
                         required
                         {...register("ccv")}
