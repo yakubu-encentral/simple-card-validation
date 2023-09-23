@@ -11,7 +11,7 @@ A simple application that validates card details during ecommerce checkout
 
 ## Major Access points
 
-- Base url version 1: `{{protocol}}://{{host}}/api/v1`
+- Base url version 1: `{{protocol}}://{{host}}/api`
 
 ### 1. Checkout
 
@@ -35,25 +35,25 @@ A simple application that validates card details during ecommerce checkout
 
 ## Local Set UP
 
-### First time
+### 1. Install Dependencies (Do Once)
 
 - clone the repository and open a terminal window in the directory the application is set
-- ensure port 3000 and 8080 are available
 - if you are on a Linux/macOS setup, run the command `chmod +x install.sh` to make the script executable, followed by the command `./install.sh`
 - if you are on a Windows setup, run the command `install.bat`
-- This will install both frontend and backend dependencies and start the applications on port 3000 and port 8080 for the frontend and backend respectively
+- this will install both frontend and backend dependencies
 
-### Other times
+### 2. Start the Application
 
 - open a terminal window in the directory the application is set
 - ensure port 3000 and 8080 are available
 - if you are on a Linux/macOS setup, run the command `chmod +x start.sh` to make the script executable, followed by the command `./start.sh`
 - if you are on a Windows setup, run the command `start.bat`
-- This will start the frontend application on port 3000 and the backend on port 8080
+- this will start the frontend application on port 3000 and the backend on port 8080
+- Use ctrl + C to stop the application
 
 ## Access
 
-To access the frontend application, navigate to localhost:3000 after starting the application. For the backend application, the endpoint can be accesed from localhost:8080/api/v1
+To access the frontend application, navigate to localhost:3000 after starting the application. For the backend application, the endpoint can be accesed from localhost:8080/api
 
 ## Author
 

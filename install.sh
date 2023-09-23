@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Start the frontend
-echo "Starting the frontend..."
+# Install frontend dependencies
+echo "Installing frontend dependencies..."
 cd frontend
-npm run dev &
+npm install
 cd ..
 
-# Start the backend
-echo "Starting the backend..."
+# Install backend dependencies
+echo "Installing backend dependencies..."
 cd backend
-mvn spring-boot:run
+mvn clean install
+cd ..

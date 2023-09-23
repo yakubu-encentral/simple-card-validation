@@ -1,12 +1,13 @@
 @echo off
 
-rem Start the frontend
-echo Starting the frontend...
+rem Install frontend dependencies
+echo Installing frontend dependencies...
 cd frontend
-start npm run dev
+npm install
 cd ..
 
-rem Start the backend
-echo Starting the backend...
+rem Install backend dependencies
+echo Installing backend dependencies...
 cd backend
-start mvn spring-boot:run
+mvn clean install
+cd ..
