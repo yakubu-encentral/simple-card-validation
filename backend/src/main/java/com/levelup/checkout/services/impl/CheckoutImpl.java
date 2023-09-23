@@ -87,20 +87,20 @@ public class CheckoutImpl implements ICheckout {
             if ((isEvenLength && i % 2 != 0) || (!isEvenLength && i % 2 == 0))
                 continue;
 
-            int digit = cardNumber.charAt(i);
+            int digit = Character.getNumericValue(cardNumber.charAt(i));
             int doubled = digit * 2;
             if (doubled < 10) {
-                result.append(digit);
+                result.replace(i, i + 1, String.valueOf(doubled));
             } else {
                 int first = doubled / 10;
                 int second = doubled % 10;
-                result.replace(i, i, String.valueOf(first + second));
+                result.replace(i, i + 1, String.valueOf(first + second));
             }
         }
 
         int sum = 0;
         for (int i = 0; i < length; i++) {
-            int digit = result.charAt(i);
+            int digit = Character.getNumericValue(result.charAt(i));
             sum += digit;
         }
 
