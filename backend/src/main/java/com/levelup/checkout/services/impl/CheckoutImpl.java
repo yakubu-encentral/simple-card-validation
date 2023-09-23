@@ -11,6 +11,15 @@ import java.util.ArrayList;
 @Service
 public class CheckoutImpl implements ICheckout {
 
+    /**
+     * @author YAKUBU
+     * @dateCreated 22/09/2023
+     * @description Checkouts user card details
+     *
+     * @param checkoutDto The request object
+     *
+     * @return boolean whether the card details is valid or not
+     */
     @Override
     public boolean checkout(CheckoutDto checkoutDto) {
         final var cardDetails = new CardDetails(
@@ -24,20 +33,30 @@ public class CheckoutImpl implements ICheckout {
         return true;
     }
 
+    /**
+     * @author YAKUBU
+     * @dateCreated 22/09/2023
+     * @description Validates card details, throws InvalidCardDetailsException if invalid
+     *
+     * @param cardDetails The card details to validate
+     */
     private void validateCardDetails(CardDetails cardDetails) {
         final var errors = new ArrayList<String>();
 
+        // Step 1: check expiration date
         final var now = LocalDate.now();
         final var expiryDate = LocalDate.of(cardDetails.expiryYear(), cardDetails.expiryMonth(), now.getDayOfMonth());
         if (now.isAfter(expiryDate)) {
             errors.add("This card has expired");
         }
 
+        // Step 2: check if is a valid luhn number
         final var cardNumberAsString = cardDetails.number().toString();
         if (!isLuhnValid(cardNumberAsString)) {
             errors.add("Invalid card number");
         }
 
+        // Step 3: check ccv/cvc
         final var isAmericanExpress = cardNumberAsString.startsWith("34")
                 || cardNumberAsString.startsWith("37");
         final var ccvAsString = cardDetails.ccv().toString();
@@ -52,6 +71,13 @@ public class CheckoutImpl implements ICheckout {
         }
     }
 
+    /**
+     * @author YAKUBU
+     * @dateCreated 22/09/2023
+     * @description This method checks whether a given number is luhn valid
+     *
+     * @param cardNumber The card number (PAN) to validate
+     */
     private boolean isLuhnValid(String cardNumber) {
         final var length = cardNumber.length();
         final var result = new StringBuilder(cardNumber);

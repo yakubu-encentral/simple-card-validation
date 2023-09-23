@@ -14,7 +14,7 @@ public class CheckoutDto {
     private String cardName;
 
     @NotBlank(message = "Invalid Card Number: Not provided")
-    //@LuhnCheck(message = "Invalid Card Number: Inaccurate PAN")
+    @LuhnCheck(message = "Invalid Card Number: Inaccurate PAN")
     @Pattern(regexp="\\d{16,19}", message = "Invalid Card Number: Must be 16 - 19 digits long")
     private String cardNumber;
 
